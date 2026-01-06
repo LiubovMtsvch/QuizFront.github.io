@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome-Quicard.ai</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="Quicard.js"></script>
+    <style>
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Settings specific */
+        .setting-card {
+            transition: all 0.2s ease;
+        }
+        
+        .setting-card:hover {
+            background: rgba(30, 41, 59, 0.5);
+            border-color: #3b82f6;
+        }
+        
+        /* Toggle switch */
+        .toggle-checkbox:checked {
+            right: 0;
+            border-color: #3b82f6;
+        }
+        
+        .toggle-checkbox:checked + .toggle-label {
+            background: #3b82f6;
+        }
+        
+        /* Tab styling */
+        .tab-button.active {
+            background: rgba(30, 41, 59, 0.5);
+            border-bottom: 2px solid #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+    <!-- Settings Container -->
+    <div class="flex min-h-screen">
+        <!-- Sidebar (same as dashboard) -->
+        <aside id="sidebar" class="w-64 bg-slate-800 border-r border-slate-700 flex flex-col fixed md:relative inset-y-0 left-0 z-50 transform -translate-x-full md:translate-x-0 md:flex transition-transform duration-300">
+            <!-- Logo -->
+            <div class="p-6 border-b border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg">
+                        <i data-lucide="brain" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold">Quicard.ai</h1>
+                        <p class="text-xs text-slate-400">Settings</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#" onclick="switchTab('dashboard')" class="flex items-center gap-3 p-3 text-slate-300 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                
+                <a href="#" onclick="switchTab('profile')" class="flex items-center gap-3 p-3 bg-blue-900/30 text-blue-300 rounded-lg">
+                    <i data-lucide="user" class="w-5 h-5"></i>
+                    <span>Profile Settings</span>
+                </a>
+                
+                <a href="#" onclick="switchTab('ai')" class="flex items-center gap-3 p-3 text-slate-300 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i data-lucide="cpu" class="w-5 h-5"></i>
+                    <span>AI API Settings</span>
+                </a>
+                
+                <a href="#" onclick="switchTab('security')" class="flex items-center gap-3 p-3 text-slate-300 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i data-lucide="lock" class="w-5 h-5"></i>
+                    <span>Security</span>
+                </a>
+                
+                <a href="#" onclick="switchTab('general')" class="flex items-center gap-3 p-3 text-slate-300 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span>General Settings</span>
+                </a>
+                
+                <a href="#" onclick="switchTab('data')" class="flex items-center gap-3 p-3 text-slate-300 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i data-lucide="database" class="w-5 h-5"></i>
+                    <span>Data Management</span>
+                </a>
+                
+                <a href="#" onclick="switchTab('billing')" class="flex items-center gap-3 p-3 text-slate-300 hover:bg-slate-700/50 rounded-lg transition-colors">
+                    <i data-lucide="credit-card" class="w-5 h-5"></i>
+                    <span>Subscription</span>
+                </a>
+            </nav>
+            
+            <!-- User Info -->
+            <div class="p-4 border-t border-slate-700">
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                            <span class="font-bold">St</span>
+                        </div>
+                        <button onclick="document.getElementById('avatar-upload').click()" class="absolute -bottom-1 -right-1 w-5 h-5 bg-slate-800 rounded-full border border-slate-700 flex items-center justify-center">
+                            <i data-lucide="camera" class="w-3 h-3"></i>
+                        </button>
+                        <input type="file" id="avatar-upload" class="hidden" accept="image/*">
+                    </div>
+                    <div class="flex-1">
+                        <p class="font-medium">Student</p>
+                        <p class="text-xs text-slate-400">Pro Plan</p>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Mobile Sidebar Overlay -->
+        <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col md:ml-0">
+            <!-- Top Header -->
+            <header class="bg-slate-800 border-b border-slate-700 p-4">
+                <div class="flex items-center justify-between">
+                    <!-- Mobile Menu Button -->
+                    <button class="md:hidden" onclick="toggleSidebar()">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                    
+                    <!-- Page Title -->
+                    <div class="flex-1 ml-4">
+                        <h2 id="page-title" class="text-xl font-bold gradient-text">Settings</h2>
+                        <p id="page-subtitle" class="text-sm text-slate-400">Update your profile information</p>
+                    </div>
+                    
+                    <!-- Search (only on dashboard) -->
+                    <div id="dashboard-search" class="hidden flex-1 max-w-md mx-4">
+                        <div class="relative">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                            <input type="text" placeholder="Search Quiz..." class="w-full pl-10 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <!-- User Actions -->
+                    <div class="flex items-center gap-4">    
+                        <!-- Bildirim Butonu -->
+                        <div class="relative">
+                            <button onclick="toggleNotifications()" class="relative">
+                                <i data-lucide="bell" class="w-6 h-6 text-white"></i>
+                                <span class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                            </button>
+
+                            <!-- Drop-down -->
+                            <div id="notificationDropdown" class="hidden absolute right-0 mt-7 w-64 bg-slate-800 border border-slate-700 rounded-lg shadow-lg z-50">
+                                <ul>
+                                    <li class="px-4 py-2 hover:bg-slate-700 cursor-pointer">You have new messages</li>
+                                    <li class="px-4 py-2 hover:bg-slate-700 cursor-pointer">Homework submission reminder</li>
+                                    <li class="px-4 py-2 hover:bg-slate-700 cursor-pointer">System update</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right hidden md:block">
+                                <p class="font-medium">Furkan</p>
+                                <p class="text-sm text-slate-400">Student</p>
+                            </div>
+                            <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                                <span class="font-bold">F</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Tabs (Mobile) -->
+            <div id="mobile-tabs" class="md:hidden border-b border-slate-700 overflow-x-auto">
+                <div class="flex">
+                    <button onclick="switchTab('profile')" class="tab-button px-4 py-3 text-sm font-medium whitespace-nowrap">
+                        Profile
+                    </button>
+                    <button onclick="switchTab('ai')" class="tab-button px-4 py-3 text-sm font-medium whitespace-nowrap">
+                        AI API
+                    </button>
+                    <button onclick="switchTab('security')" class="tab-button px-4 py-3 text-sm font-medium whitespace-nowrap">
+                        Security
+                    </button>
+                    <button onclick="switchTab('general')" class="tab-button px-4 py-3 text-sm font-medium whitespace-nowrap">
+                        General
+                    </button>
+                    <button onclick="switchTab('data')" class="tab-button px-4 py-3 text-sm font-medium whitespace-nowrap">
+                        Data
+                    </button>
+                    <button onclick="switchTab('billing')" class="tab-button px-4 py-3 text-sm font-medium whitespace-nowrap">
+                        Subscription
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <main id="main-content" class="flex-1 p-4 md:p-6 overflow-auto">
+                <!-- DASHBOARD TAB -->
+                <div id="dashboard-tab" class="tab-content">
+                    <!-- Welcome Section -->
+                    <div class="mb-8">
+                        <h1 class="text-3xl font-bold gradient-text mb-2">Welcome back, Student!👋</h1>
+                        <p class="text-slate-400">Which physics subject would you like to study today?</p>
+                    </div>
+
+                    <!-- Quick Actions Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                        <!-- PDF'ten Quiz -->
+                        <div class="bg-gradient-to-br from-blue-900/30 to-blue-900/10 border border-blue-800/30 rounded-xl p-6 hover:border-blue-600 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-3 bg-blue-900/50 rounded-lg">
+                                    <i data-lucide="upload" class="w-6 h-6 text-blue-400"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold">Quiz from PDF</h3>
+                            </div>
+                            <p class="text-slate-300 text-sm">Upload your physics PDF and generate an automatic quiz.</p>
+                        </div>
+
+                        <!-- AI ile Geliştir -->
+                        <div class="bg-gradient-to-br from-purple-900/30 to-purple-900/10 border border-purple-800/30 rounded-xl p-6 hover:border-purple-600 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-3 bg-purple-900/50 rounded-lg">
+                                    <i data-lucide="cpu" class="w-6 h-6 text-purple-400"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold">Improve with AI</h3>
+                            </div>
+                            <p class="text-slate-300 text-sm">Enhance your quizzes with AI and add questions.</p>
+                        </div>
+
+                        <!-- Quiz Arşivi -->
+                        <div class="bg-gradient-to-br from-green-900/30 to-green-900/10 border border-green-800/30 rounded-xl p-6 hover:border-green-600 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-3 bg-green-900/50 rounded-lg">
+                                    <i data-lucide="archive" class="w-6 h-6 text-green-400"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold">Quiz Archives</h3>
+                            </div>
+                            <p class="text-slate-300 text-sm">Ready-made quizzes, popular physics topics.</p>
+                        </div>
+
+                        <!-- Hızlı Başlangıç -->
+                        <div class="bg-gradient-to-br from-orange-900/30 to-orange-900/10 border border-orange-800/30 rounded-xl p-6 hover:border-orange-600 transition-colors cursor-pointer">
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="p-3 bg-orange-900/50 rounded-lg">
+                                    <i data-lucide="zap" class="w-6 h-6 text-orange-400"></i>
+                                </div>
+                                <h3 class="text-lg font-semibold">Quick Start</h3>
+                            </div>
+                            <p class="text-slate-300 text-sm">Get started with the demo quiz now.</p>
+                        </div>
+                    </div>
+
+                    <!-- AI Status -->
+                    <div class="mb-8">
+                        <div class="bg-slate-800 border border-slate-700 rounded-xl p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h2 class="text-xl font-semibold flex items-center gap-2">
+                                    <i data-lucide="cpu" class="w-5 h-5 text-purple-400"></i>
+                                    AI Durumu
+                                </h2>
+                                <span class="px-3 py-1 bg-green-900/30 text-green-300 rounded-full text-sm">Bağlı</span>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div>
+                                    <p class="text-sm text-slate-400 mb-1">AI Sağlayıcı</p>
+                                    <p class="font-medium">OpenAI GPT-4</p>
+                                </div>
+                                
+                                <div>
+                                    <p class="text-sm text-slate-400 mb-1">Kullanım Durumu</p>
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex-1 bg-slate-700 rounded-full h-2">
+                                            <div class="bg-green-500 rounded-full h-2" style="width: 65%"></div>
+                                        </div>
+                                        <span class="text-sm">65%</span>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <p class="text-sm text-slate-400 mb-1">Son Kullanım</p>
+                                    <p class="font-medium">2 saat önce</p>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-6">
+                                <button onclick="switchTab('ai')" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors">
+                                    AI Ayarlarını Yönet
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Quizzes -->
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl p-6 mb-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-xl font-semibold flex items-center gap-2">
+                                <i data-lucide="history" class="w-5 h-5 text-blue-400"></i>
+                                Son Quizlerim
+                            </h2>
+                            <button class="text-sm text-blue-400 hover:text-blue-300 transition-colors">
+                                Tümünü Gör
+                            </button>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="text-left text-sm text-slate-400 border-b border-slate-700">
+                                        <th class="pb-3 font-medium">Quiz Adı</th>
+                                        <th class="pb-3 font-medium">Tarih</th>
+                                        <th class="pb-3 font-medium">Soru Sayısı</th>
+                                        <th class="pb-3 font-medium">Durum</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="text-sm">
+                                    <tr class="border-b border-slate-700/50">
+                                        <td class="py-4">
+                                            <div class="font-medium">Mekanik Formüller</div>
+                                            <div class="text-slate-400 text-xs">Hız, İvme, Kuvvet</div>
+                                        </td>
+                                        <td class="py-4">15 Oca 2024</td>
+                                        <td class="py-4">20 soru</td>
+                                        <td class="py-4">
+                                            <span class="px-3 py-1 bg-green-900/30 text-green-300 rounded-full text-xs">
+                                                Tamamlandı
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr class="border-b border-slate-700/50">
+                                        <td class="py-4">
+                                            <div class="font-medium">Termodinamik</div>
+                                            <div class="text-slate-400 text-xs">Isı, İş, Enerji</div>
+                                        </td>
+                                        <td class="py-4">14 Oca 2024</td>
+                                        <td class="py-4">15 soru</td>
+                                        <td class="py-4">
+                                            <span class="px-3 py-1 bg-yellow-900/30 text-yellow-300 rounded-full text-xs">
+                                                Devam Ediyor
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    
+                                    <tr>
+                                        <td class="py-4">
+                                            <div class="font-medium">Elektrik ve Manyetizma</div>
+                                            <div class="text-slate-400 text-xs">Akım, Gerilim, Manyetik Alan</div>
+                                        </td>
+                                        <td class="py-4">13 Oca 2024</td>
+                                        <td class="py-4">25 soru</td>
+                                        <td class="py-4">
+                                            <span class="px-3 py-1 bg-blue-900/30 text-blue-300 rounded-full text-xs">
+                                                Planlandı
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Quick PDF Upload -->
+                    <div class="bg-gradient-to-br from-slate-800 to-slate-800/50 border border-slate-700 rounded-xl p-6">
+                        <h2 class="text-xl font-semibold mb-4">Hızlı Quiz Oluştur</h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Text Area -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">
+                                    <i data-lucide="file-text" class="w-4 h-4 inline mr-2"></i>
+                                    PDF Metnini Yapıştır
+                                </label>
+                                <textarea 
+                                    class="w-full h-48 bg-slate-900 border border-slate-700 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                    placeholder="PDF'ten kopyaladığınız Rusça/Türkçe fizik metnini buraya yapıştırın..."
+                                ></textarea>
+                            </div>
+                            
+                            <!-- Actions -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">
+                                    <i data-lucide="upload" class="w-4 h-4 inline mr-2"></i>
+                                    Veya Dosya Yükle
+                                </label>
+                                
+                                <div class="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center mb-6 hover:border-blue-500 transition-colors cursor-pointer">
+                                    <i data-lucide="upload-cloud" class="w-12 h-12 text-slate-500 mx-auto mb-4"></i>
+                                    <p class="text-slate-400">PDF dosyanızı sürükleyin veya tıklayın</p>
+                                    <p class="text-xs text-slate-500 mt-2">Max. 10MB</p>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center gap-3">
+                                        <input type="checkbox" id="ai-enhance" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-700 rounded">
+                                        <label for="ai-enhance" class="text-sm">AI ile geliştir</label>
+                                    </div>
+                                    
+                                    <button class="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-lg font-semibold transition-all hover:scale-[1.02]">
+                                        Quiz Oluştur
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- PROFILE TAB -->
+                <div id="profile-tab" class="tab-content space-y-6 hidden">
+                    <!-- Profile Card -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <i data-lucide="user" class="w-5 h-5 text-blue-400"></i>
+                            Profil Bilgileri
+                        </h3>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <!-- Full Name -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Ad Soyad</label>
+                                <div class="relative">
+                                    <i data-lucide="user" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                    <input type="text" id="full-name" value="Furkan ONAT" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">E-posta</label>
+                                <div class="relative">
+                                    <i data-lucide="mail" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                    <input type="email" id="email" value="furkan@fizikquiz.ai" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            
+                            <!-- Phone -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Telefon</label>
+                                <div class="relative">
+                                    <i data-lucide="phone" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                    <input type="tel" id="phone" placeholder="+90 5xx xxx xx xx" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            
+                            <!-- School/Department -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Okul/Bölüm</label>
+                                <div class="relative">
+                                    <i data-lucide="graduation-cap" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                    <input type="text" id="school" placeholder="Üniversite - Fizik Bölümü" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bio -->
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium mb-2">Biyografi</label>
+                            <textarea id="bio" rows="3" class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none" placeholder="Kendinizden bahsedin...">Fizik öğrencisi, AI meraklısı, quiz sever</textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- AI API TAB -->
+                <div id="ai-tab" class="tab-content hidden space-y-6">
+                    <!-- AI Provider Card -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-5 h-5 text-purple-400"></i>
+                            AI API Ayarları
+                        </h3>
+                        
+                        <!-- Provider Selection -->
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium mb-2">AI Sağlayıcı</label>
+                            <div class="relative">
+                                <i data-lucide="server" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                <select id="ai-provider" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none">
+                                    <option value="openai" selected>OpenAI GPT-4</option>
+                                    <option value="gemini">Google Gemini</option>
+                                    <option value="claude">Anthropic Claude</option>
+                                    <option value="custom">Özel API</option>
+                                    <option value="none">AI Kullanma (Demo)</option>
+                                </select>
+                                <i data-lucide="chevron-down" class="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- API Key -->
+                        <div class="mb-6">
+                            <div class="flex justify-between items-center mb-2">
+                                <label class="block text-sm font-medium">API Anahtarı</label>
+                                <button type="button" onclick="toggleApiKeyVisibility()" class="text-xs text-blue-400 hover:text-blue-300">
+                                    <span id="toggle-key-text">Göster</span>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <i data-lucide="key" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                <input type="password" id="api-key" placeholder="sk-..." class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <p class="text-xs text-slate-500 mt-2">API anahtarınız güvenle şifrelenerek saklanır.</p>
+                        </div>
+                        
+                        <!-- Custom Endpoint (only for custom) -->
+                        <div id="custom-endpoint-container" class="mb-6 hidden">
+                            <label class="block text-sm font-medium mb-2">Özel API Endpoint</label>
+                            <div class="relative">
+                                <i data-lucide="link" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                <input type="url" id="custom-endpoint" placeholder="https://api.example.com/v1" class="w-full pl-10 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                        </div>
+                        
+                        <!-- Status & Test -->
+                        <div class="grid md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Bağlantı Durumu</label>
+                                <div class="flex items-center gap-2">
+                                    <div id="api-status" class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span id="api-status-text" class="text-green-400 font-medium">Bağlı</span>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Günlük Limit</label>
+                                <input type="range" id="daily-limit" min="1" max="100" value="50" class="w-full">
+                                <div class="flex justify-between text-xs text-slate-500">
+                                    <span>1/gün</span>
+                                    <span id="limit-value">50/gün</span>
+                                    <span>100/gün</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Test Button -->
+                        <button onclick="testApiConnection()" class="w-full py-3 bg-slate-700 hover:bg-slate-600 rounded-lg font-medium transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="wifi" class="w-4 h-4"></i>
+                            Bağlantıyı Test Et
+                        </button>
+                    </div>
+                    
+                    <!-- Usage Stats -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">AI Kullanım İstatistikleri</h3>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="text-center p-4 bg-slate-900/50 rounded-lg">
+                                <div class="text-2xl font-bold text-blue-400">247</div>
+                                <div class="text-sm text-slate-400">Toplam İstek</div>
+                            </div>
+                            
+                            <div class="text-center p-4 bg-slate-900/50 rounded-lg">
+                                <div class="text-2xl font-bold text-green-400">12.45</div>
+                                <div class="text-sm text-slate-400">TL Maliyet</div>
+                            </div>
+                            
+                            <div class="text-center p-4 bg-slate-900/50 rounded-lg">
+                                <div class="text-2xl font-bold text-yellow-400">15/50</div>
+                                <div class="text-sm text-slate-400">Bugünkü Kullanım</div>
+                            </div>
+                            
+                            <div class="text-center p-4 bg-slate-900/50 rounded-lg">
+                                <div class="text-2xl font-bold text-purple-400">%98</div>
+                                <div class="text-sm text-slate-400">Başarı Oranı</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- SECURITY TAB -->
+                <div id="security-tab" class="tab-content hidden space-y-6">
+                    <!-- Password Change Card -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
+                            <i data-lucide="lock" class="w-5 h-5 text-red-400"></i>
+                            Şifre Değiştir
+                        </h3>
+                        
+                        <div class="space-y-4">
+                            <!-- Current Password -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Mevcut Şifre</label>
+                                <div class="relative">
+                                    <i data-lucide="lock" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                    <input type="password" id="current-password" class="w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <button type="button" onclick="togglePassword('current-password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- New Password -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Yeni Şifre</label>
+                                <div class="relative">
+                                    <i data-lucide="lock" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                    <input type="password" id="new-password" class="w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <button type="button" onclick="togglePassword('new-password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Confirm New Password -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Yeni Şifre (Tekrar)</label>
+                                <div class="relative">
+                                    <i data-lucide="lock" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400"></i>
+                                    <input type="password" id="confirm-password" class="w-full pl-10 pr-10 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <button type="button" onclick="togglePassword('confirm-password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white">
+                                        <i data-lucide="eye" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Password Strength -->
+                            <div class="mt-2">
+                                <div class="flex justify-between mb-1">
+                                    <span class="text-sm text-slate-400">Şifre Gücü</span>
+                                    <span id="password-strength" class="text-sm font-medium">Zayıf</span>
+                                </div>
+                                <div class="w-full bg-slate-700 rounded-full h-2">
+                                    <div id="password-strength-bar" class="bg-red-500 h-2 rounded-full" style="width: 25%"></div>
+                                </div>
+                            </div>
+                            
+                            <!-- Change Button -->
+                            <button onclick="changePassword()" class="w-full mt-6 py-3 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 rounded-lg font-semibold transition-all hover:scale-[1.02]">
+                                Şifreyi Değiştir
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Two-Factor Authentication -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">İki Faktörlü Kimlik Doğrulama (2FA)</h3>
+                        
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <p class="font-medium">Google Authenticator</p>
+                                <p class="text-sm text-slate-400">Hesabınıza ek güvenlik katın</p>
+                            </div>
+                            <!-- Toggle Switch -->
+                            <div class="relative inline-block w-12 mr-2 align-middle select-none">
+                                <input type="checkbox" name="2fa-toggle" id="2fa-toggle" class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer" />
+                                <label for="2fa-toggle" class="toggle-label block overflow-hidden h-6 rounded-full bg-slate-700 cursor-pointer"></label>
+                            </div>
+                        </div>
+                        
+                        <div id="2fa-setup" class="hidden mt-4 p-4 bg-slate-900/50 rounded-lg">
+                            <p class="text-sm text-slate-400 mb-3">Google Authenticator uygulamasında QR kodu tarayın:</p>
+                            <div class="flex flex-col md:flex-row items-center gap-6">
+                                <div class="w-32 h-32 bg-white p-2 rounded-lg">
+                                    <!-- QR Code Placeholder -->
+                                    <div class="w-full h-full bg-gray-300 flex items-center justify-center">
+                                        <span class="text-gray-600">QR Code</span>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-sm font-mono bg-slate-900 p-3 rounded">JBSWY3DPEHPK3PXP</p>
+                                    <p class="text-xs text-slate-500 mt-2">Veya bu kodu manuel olarak girin</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Login Sessions -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Aktif Oturumlar</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="monitor" class="w-5 h-5 text-blue-400"></i>
+                                    <div>
+                                        <p class="font-medium">Chrome, Windows 10</p>
+                                        <p class="text-sm text-slate-400">İstanbul • Şu an aktif</p>
+                                    </div>
+                                </div>
+                                <button class="text-red-400 hover:text-red-300">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="smartphone" class="w-5 h-5 text-green-400"></i>
+                                    <div>
+                                        <p class="font-medium">Safari, iPhone</p>
+                                        <p class="text-sm text-slate-400">Ankara • 2 saat önce</p>
+                                    </div>
+                                </div>
+                                <button class="text-red-400 hover:text-red-300">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button onclick="logoutAllSessions()" class="w-full mt-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm transition-colors">
+                            Tüm Oturumları Sonlandır
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- GENERAL TAB -->
+                <div id="general-tab" class="tab-content hidden space-y-6">
+                    <!-- Theme Settings -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Görünüm Ayarları</h3>
+                        
+                        <div class="grid md:grid-cols-3 gap-4 mb-6">
+                            <button onclick="setTheme('dark')" class="p-4 bg-slate-900 border-2 border-slate-700 rounded-lg text-center hover:border-blue-500 transition-colors">
+                                <i data-lucide="moon" class="w-6 h-6 mx-auto mb-2 text-blue-400"></i>
+                                <p class="font-medium">Koyu</p>
+                            </button>
+                            
+                            <button onclick="setTheme('light')" class="p-4 bg-white border-2 border-slate-300 rounded-lg text-center hover:border-blue-500 transition-colors">
+                                <i data-lucide="sun" class="w-6 h-6 mx-auto mb-2 text-yellow-500"></i>
+                                <p class="font-medium text-black">Açık</p>
+                            </button>
+                            
+                            <button onclick="setTheme('auto')" class="p-4 bg-gradient-to-r from-slate-900 to-white border-2 border-slate-700 rounded-lg text-center hover:border-blue-500 transition-colors">
+                                <i data-lucide="monitor" class="w-6 h-6 mx-auto mb-2 text-purple-400"></i>
+                                <p class="font-medium">Otomatik</p>
+                            </button>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Dil</label>
+                                <select class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option selected>Türkçe</option>
+                                    <option>English</option>
+                                    <option>Русский</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Quiz Zorluk</label>
+                                <select class="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option>Kolay</option>
+                                    <option selected>Orta</option>
+                                    <option>Zor</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Notification Settings -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Bildirim Ayarları</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">E-posta Bildirimleri</p>
+                                    <p class="text-sm text-slate-400">Quiz tamamlama, AI kullanımı</p>
+                                </div>
+                                <input type="checkbox" checked class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-700 rounded focus:ring-blue-500">
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Uygulama Bildirimleri</p>
+                                    <p class="text-sm text-slate-400">Yeni özellikler, hatırlatmalar</p>
+                                </div>
+                                <input type="checkbox" checked class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-700 rounded focus:ring-blue-500">
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">AI Limit Uyarıları</p>
+                                    <p class="text-sm text-slate-400">Günlük limit yaklaşınca</p>
+                                </div>
+                                <input type="checkbox" checked class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-700 rounded focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Privacy Settings -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Gizlilik Ayarları</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Profilimi Gizli Yap</p>
+                                    <p class="text-sm text-slate-400">Diğer kullanıcılar göremez</p>
+                                </div>
+                                <input type="checkbox" class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-700 rounded focus:ring-blue-500">
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Quizlerimi Paylaşılabilir Yap</p>
+                                    <p class="text-sm text-slate-400">Diğerleri quizlerinizi görebilir</p>
+                                </div>
+                                <input type="checkbox" checked class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-700 rounded focus:ring-blue-500">
+                            </div>
+                            
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Anonim Kullanım Verisi</p>
+                                    <p class="text-sm text-slate-400">Geliştirmeye yardımcı ol</p>
+                                </div>
+                                <input type="checkbox" checked class="w-4 h-4 text-blue-600 bg-slate-900 border-slate-700 rounded focus:ring-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- DATA TAB -->
+                <div id="data-tab" class="tab-content hidden space-y-6">
+                    <!-- Export Data -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Veri Dışa Aktar</h3>
+                        <p class="text-slate-400 mb-6">Quizlerinizi ve verilerinizi yedekleyin</p>
+                        
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <button onclick="exportData('json')" class="p-4 bg-slate-900 border border-slate-700 rounded-lg hover:border-green-500 transition-colors text-center">
+                                <i data-lucide="code" class="w-6 h-6 mx-auto mb-2 text-green-400"></i>
+                                <p class="font-medium">JSON</p>
+                                <p class="text-xs text-slate-400">Tüm veri</p>
+                            </button>
+                            
+                            <button onclick="exportData('pdf')" class="p-4 bg-slate-900 border border-slate-700 rounded-lg hover:border-red-500 transition-colors text-center">
+                                <i data-lucide="file-text" class="w-6 h-6 mx-auto mb-2 text-red-400"></i>
+                                <p class="font-medium">PDF</p>
+                                <p class="text-xs text-slate-400">Quizler</p>
+                            </button>
+                            
+                            <button onclick="exportData('csv')" class="p-4 bg-slate-900 border border-slate-700 rounded-lg hover:border-blue-500 transition-colors text-center">
+                                <i data-lucide="table" class="w-6 h-6 mx-auto mb-2 text-blue-400"></i>
+                                <p class="font-medium">CSV</p>
+                                <p class="text-xs text-slate-400">İstatistikler</p>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Import Data -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Veri İçe Aktar</h3>
+                        
+                        <div class="border-2 border-dashed border-slate-700 rounded-lg p-8 text-center mb-4 hover:border-blue-500 transition-colors cursor-pointer" onclick="document.getElementById('file-import').click()">
+                            <i data-lucide="upload" class="w-12 h-12 text-slate-500 mx-auto mb-4"></i>
+                            <p class="text-slate-400">JSON dosyanızı sürükleyin veya tıklayın</p>
+                            <p class="text-xs text-slate-500 mt-2">Sadece FizikQuiz.AI formatı</p>
+                        </div>
+                        <input type="file" id="file-import" class="hidden" accept=".json,.csv">
+                    </div>
+                    
+                    <!-- Data Management -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Veri Yönetimi</h3>
+                        
+                        <div class="space-y-4">
+                            <button onclick="clearCache()" class="w-full flex items-center justify-between p-4 bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="trash-2" class="w-5 h-5 text-yellow-400"></i>
+                                    <div>
+                                        <p class="font-medium">Önbelleği Temizle</p>
+                                        <p class="text-sm text-slate-400">Geçici dosyaları sil</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+                            </button>
+                            
+                            <button onclick="downloadAllData()" class="w-full flex items-center justify-between p-4 bg-slate-900 hover:bg-slate-800 rounded-lg transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="download" class="w-5 h-5 text-blue-400"></i>
+                                    <div>
+                                        <p class="font-medium">Tüm Veriyi İndir</p>
+                                        <p class="text-sm text-slate-400">Tam yedek al</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400"></i>
+                            </button>
+                            
+                            <button onclick="showDeleteAccount()" class="w-full flex items-center justify-between p-4 bg-red-900/20 hover:bg-red-900/30 border border-red-800/30 rounded-lg transition-colors">
+                                <div class="flex items-center gap-3">
+                                    <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400"></i>
+                                    <div>
+                                        <p class="font-medium">Hesabı Sil</p>
+                                        <p class="text-sm text-slate-400">Tüm veriniz kalıcı silinir</p>
+                                    </div>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-red-400"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- BILLING TAB -->
+                <div id="billing-tab" class="tab-content hidden space-y-6">
+                    <!-- Current Plan -->
+                    <div class="bg-gradient-to-br from-blue-900/30 to-purple-900/30 border border-blue-800/30 rounded-xl p-6">
+                        <div class="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 class="text-xl font-bold">Pro Plan</h3>
+                                <p class="text-slate-300">Sınırsız quiz, 50 AI kullanım/gün</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-3xl font-bold">$5<span class="text-lg text-slate-400">/ay</span></p>
+                                <p class="text-sm text-slate-400">Son ödeme: 15 Oca 2024</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-4 mb-6">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                                <span>Sınırsız Quiz</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                                <span>50 AI/gün</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                                <span>Gelişmiş İstatistik</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+                                <span>PDF Export</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-4">
+                            <button onclick="upgradePlan()" class="flex-1 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 rounded-lg font-semibold transition-all hover:scale-[1.02]">
+                                Yükselt ($20/ay)
+                            </button>
+                            <button onclick="cancelSubscription()" class="px-6 py-3 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">
+                                İptal Et
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Methods -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Ödeme Yöntemleri</h3>
+                        
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between p-4 bg-slate-900/50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-6 bg-blue-500 rounded flex items-center justify-center">
+                                        <span class="text-xs font-bold text-white">VISA</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-medium">**** **** **** 4242</p>
+                                        <p class="text-sm text-slate-400">Son kullanım: 01/25</p>
+                                    </div>
+                                </div>
+                                <button class="text-red-400 hover:text-red-300">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                            
+                            <button onclick="addPaymentMethod()" class="w-full flex items-center justify-center gap-2 py-3 border-2 border-dashed border-slate-700 rounded-lg hover:border-blue-500 transition-colors">
+                                <i data-lucide="plus" class="w-4 h-4"></i>
+                                Yeni Ödeme Yöntemi Ekle
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Invoice History -->
+                    <div class="bg-slate-800/50 border border-slate-700 rounded-xl p-6 setting-card">
+                        <h3 class="text-lg font-semibold mb-4">Fatura Geçmişi</h3>
+                        
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                                <div>
+                                    <p class="font-medium">Ocak 2024 Aboneliği</p>
+                                    <p class="text-sm text-slate-400">15 Oca 2024</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium">$5.00</p>
+                                    <button class="text-sm text-blue-400 hover:text-blue-300">PDF İndir</button>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-lg">
+                                <div>
+                                    <p class="font-medium">Aralık 2023 Aboneliği</p>
+                                    <p class="text-sm text-slate-400">15 Ara 2023</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="font-medium">$5.00</p>
+                                    <button class="text-sm text-blue-400 hover:text-blue-300">PDF İndir</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="js/quicard_app.js"></script>
+
+</body>
+</html>

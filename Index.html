@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FizikQuiz.AI - AI ile Fizik Öğren</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #60a5fa 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-slate-900 to-slate-800 text-white min-h-screen">
+    <!-- React-like SPA Container -->
+    <div id="app" class="min-h-screen">
+        <!-- Header Component (Always Visible) -->
+        <header id="header" class="py-4 px-4 md:px-8 border-b border-slate-800 bg-slate-900/80 backdrop-blur-sm sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <!-- Logo -->
+                <div onclick="navigate('home')" class="flex items-center gap-3 cursor-pointer group">
+                    <div class="p-2 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg group-hover:scale-110 transition-transform">
+                        <i data-lucide="brain" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl md:text-2xl font-bold">Quicard.AI</h1>
+                        <p class="text-xs text-slate-400 hidden md:block"></p>
+                    </div>
+                </div>
+                
+                <!-- Navigation Buttons -->
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button onclick="navigate('login')" class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition-colors text-sm md:text-base">
+                        <i data-lucide="log-in" class="w-4 h-4 md:w-5 md:h-5"></i>
+                        <span class="hidden md:inline">Giriş Yap</span>
+                    </button>
+                    
+                    <button onclick="navigate('signup')" class="flex items-center gap-2 px-4 md:px-6 py-2 md:py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl font-semibold transition-all hover:scale-105 text-sm md:text-base">
+                        <i data-lucide="user-plus" class="w-4 h-4 md:w-5 md:h-5"></i>
+                        <span class="hidden md:inline">Kayıt Ol</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main id="content" class="py-8 md:py-12 px-4 md:px-8">
+            <!-- Home Page (Default) -->
+            <div id="home-page" class="page active">
+                <!-- Hero Section -->
+                <section class="max-w-6xl mx-auto text-center mb-16 md:mb-24">
+                    <div class="mb-10">
+                        <div class="inline-block p-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl mb-6">
+                            <i data-lucide="brain" class="w-12 h-12 md:w-16 md:h-16 text-blue-400"></i>
+                        </div>
+                        <h1 class="text-4xl md:text-7xl font-bold mb-6">
+                            <span class="gradient-text">Quicard</span>
+                            <br>
+                            <span class="text-3xl md:text-6xl text-slate-300">ile</span>
+                            <br>
+                            <span class="text-3xl md:text-6xl text-slate-300">Artık ezber daha kolay</span>
+                        </h1>
+                        <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-10">
+                            PDF'lerinizden otomatik quiz oluşturun, kendi AI'nızı ekleyin, 
+                            formülleri interaktif öğrenin. Tamamen ücretsiz!
+                        </p>
+                        
+                        <!-- CTA Buttons -->
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                            <button onclick="navigate('signup')" class="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl text-lg font-semibold hover:scale-105 transition-transform flex items-center gap-3">
+                                <i data-lucide="rocket" class="w-5 h-5"></i>
+                                Ücretsiz Başla
+                            </button>
+                            
+                            <button onclick="showDemo()" class="px-8 py-4 bg-slate-800 border border-slate-700 rounded-xl text-lg font-semibold hover:bg-slate-700 transition-colors flex items-center gap-3">
+                                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                                AI Demo İzle
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Features Grid -->
+                    <div class="grid md:grid-cols-3 gap-6 md:gap-8 mt-12 md:mt-20">
+                        <div class="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700 hover:border-blue-500 transition-colors">
+                            <i data-lucide="file-text" class="w-10 h-10 md:w-12 md:h-12 text-blue-400 mb-4"></i>
+                            <h3 class="text-xl md:text-2xl font-bold mb-3">PDF'ten Quiz</h3>
+                            <p class="text-slate-300 text-sm md:text-base">
+                                Rusça/Türkçe fizik PDF'lerinizi yükleyin, otomatik quiz'e dönüştürün.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700 hover:border-purple-500 transition-colors">
+                            <i data-lucide="cpu" class="w-10 h-10 md:w-12 md:h-12 text-purple-400 mb-4"></i>
+                            <h3 class="text-xl md:text-2xl font-bold mb-3">AI Entegrasyon</h3>
+                            <p class="text-slate-300 text-sm md:text-base">
+                                Kendi OpenAI, Gemini API anahtarınızı ekleyin, quizlerinizi AI ile geliştirin.
+                            </p>
+                        </div>
+                        
+                        <div class="bg-slate-800/50 p-6 md:p-8 rounded-2xl border border-slate-700 hover:border-green-500 transition-colors">
+                            <i data-lucide="zap" class="w-10 h-10 md:w-12 md:h-12 text-green-400 mb-4"></i>
+                            <h3 class="text-xl md:text-2xl font-bold mb-3">Akıllı Öğrenme</h3>
+                            <p class="text-slate-300 text-sm md:text-base">
+                                Formülleri gizleyip açarak aktif öğrenme, ilerleme takibi, kişisel analiz.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- Demo Section -->
+                <section class="max-w-4xl mx-auto mt-20 md:mt-32">
+                    <div class="text-center mb-10">
+                        <h2 class="text-3xl md:text-5xl font-bold mb-4">Nasıl Çalışır?</h2>
+                        <p class="text-slate-300 text-lg">3 adımda AI destekli fizik quiz'iniz hazır</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <span class="text-2xl font-bold text-blue-400">1</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">PDF Yükle</h3>
+                            <p class="text-slate-400">Fizik ders notlarınızı yükleyin</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-purple-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <span class="text-2xl font-bold text-purple-400">2</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">AI ile Geliştir</h3>
+                            <p class="text-slate-400">Kendi AI API'nizi bağlayın</p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <span class="text-2xl font-bold text-green-400">3</span>
+                            </div>
+                            <h3 class="text-xl font-bold mb-3">Quiz'i Çöz</h3>
+                            <p class="text-slate-400">Formülleri öğrenin, ilerleyin</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Login Page -->
+            <div id="login-page" class="page hidden">
+                <div class="max-w-md mx-auto">
+                    <!-- Logo -->
+                    <div class="text-center mb-10">
+                        <div class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl mb-6">
+                            <i data-lucide="log-in" class="w-10 h-10"></i>
+                        </div>
+                        <h1 class="text-3xl md:text-4xl font-bold mb-2">Tekrar Hoş Geldin!</h1>
+                        <p class="text-slate-400">Hesabına giriş yap ve quiz oluşturmaya başla</p>
+                    </div>
+                    
+                    <!-- Login Form -->
+                    <div class="bg-slate-800/50 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-slate-700">
+                        <form id="login-form" class="space-y-6">
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">E-posta</label>
+                                <div class="relative">
+                                    <i data-lucide="mail" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                                    <input type="email" id="login-email" class="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="ornek@email.com" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Password -->
+                            <div>
+                                <div class="flex justify-between items-center mb-2">
+                                    <label class="block text-sm font-medium">Şifre</label>
+                                    <button type="button" onclick="showForgotPassword()" class="text-sm text-blue-400 hover:text-blue-300">Şifremi unuttum?</button>
+                                </div>
+                                <div class="relative">
+                                    <i data-lucide="lock" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                                    <input type="password" id="login-password" class="w-full pl-12 pr-12 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="••••••••" required>
+                                    <button type="button" onclick="togglePassword('login-password')" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white">
+                                        <i data-lucide="eye" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all hover:scale-[1.02]">
+                                Giriş Yap
+                            </button>
+                        </form>
+                        
+                        <!-- OR Divider -->
+                        <div class="flex items-center my-8">
+                            <div class="flex-grow border-t border-slate-700"></div>
+                            <span class="px-4 text-slate-500 text-sm">veya</span>
+                            <div class="flex-grow border-t border-slate-700"></div>
+                        </div>
+                        
+                        <!-- Social Login -->
+                        <div class="space-y-4">
+                            <button type="button" onclick="socialLogin('google')" class="w-full flex items-center justify-center gap-3 py-3 bg-slate-900 border border-slate-700 rounded-xl hover:bg-slate-800 transition-colors">
+                                <i data-lucide="chrome" class="w-5 h-5"></i>
+                                Google ile giriş yap
+                            </button>
+                            
+                            <button type="button" onclick="socialLogin('github')" class="w-full flex items-center justify-center gap-3 py-3 bg-slate-900 border border-slate-700 rounded-xl hover:bg-slate-800 transition-colors">
+                                <i data-lucide="github" class="w-5 h-5"></i>
+                                GitHub ile giriş yap
+                            </button>
+                        </div>
+                        
+                        <!-- Signup Link -->
+                        <div class="text-center mt-8 pt-6 border-t border-slate-700">
+                            <p class="text-slate-400">
+                                Hesabın yok mu?{' '}
+                                <button onclick="navigate('signup')" class="text-blue-400 hover:text-blue-300 font-semibold">
+                                    Hemen kayıt ol
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Demo Notice -->
+                    <div class="mt-8 p-4 bg-blue-900/20 border border-blue-800/30 rounded-xl">
+                        <p class="text-sm text-center text-blue-300">
+                            🎯 <strong>Demo Mod:</strong> AI API anahtarınız yoksa demo modda sınırlı özelliklerle kullanabilirsiniz.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Signup Page -->
+            <div id="signup-page" class="page hidden">
+                <div class="max-w-md mx-auto">
+                    <!-- Logo -->
+                    <div class="text-center mb-10">
+                        <div class="inline-flex items-center justify-center p-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-2xl mb-6">
+                            <i data-lucide="user-plus" class="w-10 h-10"></i>
+                        </div>
+                        <h1 class="text-3xl md:text-4xl font-bold mb-2">Hesap Oluştur</h1>
+                        <p class="text-slate-400">Ücretsiz kaydol, AI quizler oluştur</p>
+                    </div>
+                    
+                    <!-- Signup Form -->
+                    <div class="bg-slate-800/50 backdrop-blur-sm p-6 md:p-8 rounded-2xl border border-slate-700">
+                        <form id="signup-form" class="space-y-6">
+                            <!-- Name -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Ad Soyad</label>
+                                <div class="relative">
+                                    <i data-lucide="user" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                                    <input type="text" id="signup-name" class="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="Furkan ONAT" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">E-posta</label>
+                                <div class="relative">
+                                    <i data-lucide="mail" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                                    <input type="email" id="signup-email" class="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="ornek@email.com" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Password -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Şifre</label>
+                                <div class="relative">
+                                    <i data-lucide="lock" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                                    <input type="password" id="signup-password" class="w-full pl-12 pr-12 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="••••••••" required>
+                                    <button type="button" onclick="togglePassword('signup-password')" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white">
+                                        <i data-lucide="eye" class="w-5 h-5"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Confirm Password -->
+                            <div>
+                                <label class="block text-sm font-medium mb-2">Şifre Tekrar</label>
+                                <div class="relative">
+                                    <i data-lucide="lock" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400"></i>
+                                    <input type="password" id="signup-confirm-password" class="w-full pl-12 pr-4 py-3 bg-slate-900 border border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="••••••••" required>
+                                </div>
+                            </div>
+                            
+                            <!-- Terms -->
+                            <div class="flex items-center">
+                                <input type="checkbox" id="terms" class="w-4 h-4 text-green-600 bg-slate-900 border-slate-700 rounded focus:ring-green-500 focus:ring-2" required>
+                                <label for="terms" class="ml-2 text-sm text-slate-300">
+                                    <button type="button" onclick="showTerms()" class="text-green-400 hover:text-green-300">Kullanım koşullarını</button> kabul ediyorum
+                                </label>
+                            </div>
+                            
+                            <!-- AI API Notice -->
+                            <div class="p-4 bg-slate-900/50 rounded-xl border border-slate-700">
+                                <p class="text-sm text-slate-300">
+                                    🤖 <strong>AI Entegrasyonu:</strong> Kayıt olduktan sonra kendi OpenAI/Gemini API anahtarınızı ekleyebilirsiniz. Zorunlu değildir.
+                                </p>
+                            </div>
+                            
+                            <!-- Submit Button -->
+                            <button type="submit" class="w-full py-4 bg-gradient-to-r from-green-600 to-emerald-600 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all hover:scale-[1.02]">
+                                Hesap Oluştur
+                            </button>
+                        </form>
+                        
+                        <!-- Login Link -->
+                        <div class="text-center mt-8 pt-6 border-t border-slate-700">
+                            <p class="text-slate-400">
+                                Zaten hesabın var mı?{' '}
+                                <button onclick="navigate('login')" class="text-green-400 hover:text-green-300 font-semibold">
+                                    Giriş yap
+                                </button>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Features Preview -->
+                    <div class="mt-8 grid grid-cols-2 gap-4">
+                        <div class="text-center p-4 bg-slate-800/30 rounded-xl">
+                            <div class="text-2xl font-bold text-green-400">5</div>
+                            <div class="text-sm text-slate-400">Ücretsiz Quiz</div>
+                        </div>
+                        <div class="text-center p-4 bg-slate-800/30 rounded-xl">
+                            <div class="text-2xl font-bold text-blue-400">AI</div>
+                            <div class="text-sm text-slate-400">Entegrasyon</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="py-8 px-4 md:px-8 border-t border-slate-800 mt-12">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            <i data-lucide="brain" class="w-5 h-5 text-blue-400"></i>
+                            FizikQuiz.AI
+                        </h3>
+                        <p class="text-slate-400 text-sm">
+                            AI destekli fizik formülleri öğrenme platformu.
+                        </p>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold mb-4">Ürün</h4>
+                        <ul class="space-y-2 text-sm text-slate-400">
+                            <li><button onclick="navigate('home')" class="hover:text-white transition-colors">Ana Sayfa</button></li>
+                            <li><button onclick="showDemo()" class="hover:text-white transition-colors">Demo</button></li>
+                            <li><button onclick="navigate('signup')" class="hover:text-white transition-colors">Ücretsiz Kayıt</button></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold mb-4">Destek</h4>
+                        <ul class="space-y-2 text-sm text-slate-400">
+                            <li><button onclick="showTerms()" class="hover:text-white transition-colors">Kullanım Koşulları</button></li>
+                            <li><button onclick="showPrivacy()" class="hover:text-white transition-colors">Gizlilik Politikası</button></li>
+                            <li><button onclick="showContact()" class="hover:text-white transition-colors">İletişim</button></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-semibold mb-4">AI Sağlayıcılar</h4>
+                        <div class="flex gap-3">
+                            <span class="px-3 py-1 bg-blue-900/30 text-blue-300 rounded-full text-xs">OpenAI</span>
+                            <span class="px-3 py-1 bg-purple-900/30 text-purple-300 rounded-full text-xs">Gemini</span>
+                            <span class="px-3 py-1 bg-green-900/30 text-green-300 rounded-full text-xs">Anthropic</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8 pt-6 border-t border-slate-800">
+                    <p class="text-slate-500 text-sm">
+                        © 2024 FizikQuiz.AI - by Furkan ONAT. Tüm hakları saklıdır.
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+        
+        // Current page state
+        let currentPage = 'home';
+        
+        // Navigation function
+        function navigate(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(el => {
+                el.classList.remove('active');
+                el.classList.add('hidden');
+            });
+            
+            // Show target page
+            const targetPage = document.getElementById(`${page}-page`);
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('active');
+                currentPage = page;
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                
+                // Update URL (without page reload)
+                history.pushState({ page }, '', `#${page}`);
+            }
+        }
+        
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                input.type = 'password';
+                icon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        }
+        
+        // Form submission handlers
+        document.getElementById('login-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Simulate login
+            showNotification('Giriş başarılı! Yönlendiriliyorsunuz...', 'success');
+            setTimeout(() => {
+                showNotification('Dashboard sayfası yakında eklenecek!', 'info');
+            }, 2000);
+        });
+        
+        document.getElementById('signup-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('signup-name').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            
+            if (password !== confirmPassword) {
+                showNotification('Şifreler eşleşmiyor!', 'error');
+                return;
+            }
+            
+            // Simulate signup
+            showNotification('Kayıt başarılı! AI ayarlarına yönlendiriliyorsunuz...', 'success');
+            setTimeout(() => {
+                showNotification('AI API ayarları sayfası yakında eklenecek!', 'info');
+            }, 2000);
+        });
+        
+        // Social login
+        function socialLogin(provider) {
+            showNotification(`${provider} ile giriş yakında eklenecek!`, 'info');
+        }
+        
+        // Show notifications
+        function showNotification(message, type = 'info') {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 px-6 py-4 rounded-xl shadow-lg border transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-900/90 border-green-700' :
+                type === 'error' ? 'bg-red-900/90 border-red-700' :
+                'bg-blue-900/90 border-blue-700'
+            }`;
+            
+            const icon = type === 'success' ? 'check-circle' : 
+                        type === 'error' ? 'alert-circle' : 'info';
+            
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i data-lucide="${icon}" class="w-5 h-5 ${type === 'success' ? 'text-green-300' : type === 'error' ? 'text-red-300' : 'text-blue-300'}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            lucide.createIcons();
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+        
+        // Demo functions
+        function showDemo() {
+            showNotification('AI Demo videosu yakında eklenecek!', 'info');
+        }
+        
+        function showTerms() {
+            alert('Kullanım Koşulları:\n\n1. Bu bir demo uygulamasıdır.\n2. AI API anahtarlarınız güvenle saklanır.\n3. Ücretsiz kullanım için günlük limitler geçerlidir.');
+        }
+        
+        function showPrivacy() {
+            alert('Gizlilik Politikası:\n\nKullanıcı verileri şifrelenerek saklanır. AI API anahtarları asla plain text olarak kaydedilmez.');
+        }
+        
+        function showContact() {
+            alert('İletişim:\n\nEmail: info@fizikquiz.ai\n\nDestek için lütfen email gönderin.');
+        }
+        
+        function showForgotPassword() {
+            const email = prompt('Şifre sıfırlama linki göndermek için email adresinizi girin:');
+            if (email) {
+                showNotification(`Şifre sıfırlama linki ${email} adresine gönderildi!`, 'success');
+            }
+        }
+        
+        // Handle browser back/forward
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.page) {
+                navigate(event.state.page);
+            }
+        });
+        
+        // Check for hash in URL on load
+        window.addEventListener('load', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && ['home', 'login', 'signup'].includes(hash)) {
+                navigate(hash);
+            }
+        });
+    </script>
+
+
+<script src="js/login.js"></script>
+<script src="js/signup.js"></script>
+
+</body>
+</html>
